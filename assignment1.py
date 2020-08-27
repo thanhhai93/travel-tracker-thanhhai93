@@ -11,10 +11,10 @@ to notice is the FILE_LIST in which will store all valuable data from main_menu(
 learnt_function() '''
 
 
-remainder = [1]
-total_place = [0]
-place= open('place.csv', "r")
-FILE = place.readline()
+REMAINDER = [1]
+TOTAL_PLACE = [0]
+place= open('places.csv', "r")
+FILE = place.readlines()
 
 
 def main():
@@ -22,14 +22,10 @@ def main():
     main_menu()
 
 
+def main_menu():
 
-def main_menu() :
+    print( "4 places loaded from places.csv")
     print("Menu: ")
-    count_need = 0
-    for lines in file:
-        count_load +=1
-    print(cout_load, "places loaded")
-
     print("L - List places ")
     print("A - Add new place ")
     print("M - Mark a place as visited ")
@@ -44,46 +40,37 @@ def main_menu() :
     if menu == "M":
         learnt_function()
     else:
-        confirm = input("Are you sure you want to quit? -(Y)es, (N)o ").upper()
-        while confirm not in ["Y", "N"]:
-            confirm = input("Invalid, please re-enter your option: (Y)es or (N)o").upper()
-        if confirm == "Y":
-            with open("place.csv", "w") as place:
-                for item in FILE:
-                    place.write("{}".format(item))
-                print("4 places saved to places.csv")
-                print("Have a nice day :) ")
-                quit()
-        else:
-            main_menu()
-
-    def list_function():
-        count = 0
-        count_learnt = 0
-
-        list = []
-        for lines in FILE:
-            count += 1
-            new_lines = lines.split(',')
-            input_place = new_lines[0]
-            input_country = new_lines[1]
-            input_priority = new_lines[2]
-            learn = new_lines[3].replace("l", "*").replace("u", "").replace("\n", "")
-            list.append(count)
-            places_display = ("{:>2}. {:<1} {:<35} - {:<35} ({})".format(count, learn, input_place, input_capital, input_priority))
-            print(places_display)
-
-            if "*" in learn:
-                count_learnt += 1
-        print("-" * 3)
-        print("Total places loaded: ", max(list))
-        count_need = (max(list) - count_learnt)
-        REMAINDER.append(count_need)
-        print(max(list) - count_learnt, "places still to learn")
-        print(count_learnt, "places learned")
-        TOTAL_PLACE.append(max(list))
-        print("-" * 3)
+        print("4 places saved to places.csv")
+        print("Have a nice day :) ")
+        quit()
         main_menu()
+
+def list_function():
+    count = 0
+    count_learnt = 0
+
+    list = []
+    for lines in FILE:
+        count += 1
+        new_lines = lines.split(',')
+        input_place = new_lines[0]
+        input_country = new_lines[1]
+
+        learn = new_lines[3].replace("l", "*").replace("u", "").replace("\n", "")
+        list.append(count)
+
+        if "*" in learn:
+            count_learnt += 1
+
+    print("Total places loaded: ", max(list))
+    count_need = (max(list) - count_learnt)
+    REMAINDER.append(count_need)
+    print(max(list) - count_learnt, )
+
+    TOTAL_PLACE.append(max(list))
+
+
+
 
 def add_function():
     learn_status = "u\n"
@@ -115,17 +102,15 @@ def add_function():
     if REMAINDER[-1] == 0:
         REMAINDER.remove(REMAINDER[-1])
     final_result = ("{},{},{},{}".format(name, country, priority, learn_status))
-    FILE_LIST.append(final_result)
-    print("{} by {} from ({}) added to place list".format(name, country, priority))
-    print('-' * 3)
+    FILE.append(final_result)
+    print("{} by {} from (priority {}) added to Travel Tracker".format(name, country, priority))
+
     main_menu()
 
 def learnt_function():
     learn_status = "l\n"
     if min(REMAINDER) == 0:
-        print('-' * 3)
         print("No more places to learn!")
-        print('-' * 3)
         main_menu()
 
     test = True
@@ -136,9 +121,8 @@ def learnt_function():
         except ValueError:
             print("Invalid input, please enter a number")
     if max(TOTAL_PLACES) == 0:
-        print("-" * 3)
         print("4 places. You still want to visit 3 places.")
-        print("-" * 3)
+
         main_menu()
 
     while number > max(TOTAL_PLACE) or number <= 0:
@@ -147,21 +131,19 @@ def learnt_function():
 
     rows = FILE[number - 1]
     new_list_rows = rows.split(",")
-    place_name = new_list_rows[0]
-    country_name = new_list_rows[1]
+    place = new_list_rows[0]
+    country = new_list_rows[1]
     priority = new_list_rows[2]
-    result = ("{},{},{},{}".format(place_name, country_name, priority, learn_status))
+    result = ("{},{},{},{}".format(place, country, priority, learn_status))
 
     FILE.append(result)
     FILE.remove(FILE[number - 1])
 
     print("4 places. No places left to visit. Why not add a new place? ")
-    print('-' * 3)
     main_menu()
 
 
-
-if __name__ =='__main__':
+if __name__ == "__main__":
     main()
 
 
