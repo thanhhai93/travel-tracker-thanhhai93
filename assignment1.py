@@ -17,138 +17,189 @@ place= open('places.csv', "r")
 FILE = place.readlines()
 
 
+
+
 def main():
-    print("Travel Tracker 1.0 - by <NGUYEN THANH HAI>")
-    main_menu()
+    # MAIN FUNCTION - to call menu & function based on menu
+    print("Travel Tracker 1.0 - by <Nguyen Thanh Hai>")
+    print(readfile(), "Places loaded from places.csv")
+    callmenu = menu()
+    # VARIABLE FOR CALLING MENU #
+    while callmenu != "Q":
+        if callmenu == "L":
+            open1()
+            callmenu = menu()
+        elif callmenu == "A".upper():
+            add()
+            callmenu = menu()
+        elif callmenu == "M".upper():
+            visitplace = readfile1()
+            if visitplace>0:
+                open1()
+                visit()
+                callmenu = menu()
+            else:
+                print("No Unvisited Place")
+                callmenu = menu()
+        else:
+            print("Invalid menu choice")
+            callmenu = menu()
 
+    print(readfile(), "Places saved in places.csv")
+    print("Have a nice day :) ")
+    sortcsvfile()
 
-def main_menu():
+def menu():
+    # MENU FUNCTION - to display menu and input choice of menu
+    menuinput = input("""Menu:
+L - List Places
+A - Add new place
+M - Mark a place as visited
+Q - Quit
+>>>""").upper()
+    return menuinput
 
-    print( "4 places loaded from places.csv")
-    print("Menu: ")
-    print("L - List places ")
-    print("A - Add new place ")
-    print("M - Mark a place as visited ")
-    print("Q - Quit ")
-    menu = input(">>>").upper()
-    while menu not in ["L", "A", "M", "Q"]:
-        menu = input ("Invalid menu choice ").upper()
-    if menu == "L":
-        list_function()
-    if menu == "A":
-        add_function()
-    if menu == "M":
-        learnt_function()
-    else:
-        print("4 places saved to places.csv")
-        print("Have a nice day :) ")
-        quit()
-        main_menu()
+def open1():
+    # read&display csv function- open csv file and display
+    import csv
+    with open('places.csv', 'r') as csvFile:
+        reader = csv.reader(csvFile)
+        datasort = sorted(reader, key=lambda row:(row[3],(int(row[2]))))
+        count = 0
+        row_count = sum(1 for row in datasort)
+        row_count1 = 0
+        for row in datasort:
+            if row[3] == 'n':
+                row_count1 = row_count1 + 1
+            count= count + 1
+            notvis = row[3].replace('n', '*').replace('v', ' ')
+            #notvis is * / none to show visit / unvisited place
+            print(notvis, '{:>1}'.format(count),'{:>0}'.format('.'), '{:<10}'.format(row[0]), "in", '{:<20}'.format(row[1]), "Priority",'{:<10}'.format(row[2]))
+        if row_count1 == 0:
+            print(row_count, "Places, No places left to visit. Why not add a new place?")
+        else:
+            print(row_count, "Places, you still want to visit", row_count1, "places")
 
-def list_function():
-    count = 0
-    count_learnt = 0
+    csvFile.close()
 
-    list = []
-    for lines in FILE:
-        count += 1
-        new_lines = lines.split(',')
-        input_place = new_lines[0]
-        input_country = new_lines[1]
-
-        learn = new_lines[3].replace("l", "*").replace("u", "").replace("\n", "")
-        list.append(count)
-
-        if "*" in learn:
-            count_learnt += 1
-
-    print("Total places loaded: ", max(list))
-    count_need = (max(list) - count_learnt)
-    REMAINDER.append(count_need)
-    print(max(list) - count_learnt, )
-
-    TOTAL_PLACE.append(max(list))
-
-
-
-
-def add_function():
-    learn_status = "u\n"
-    name = input("Name: ")
-    while name == "":
+def add():
+    # ADD FUNCTION - to append and add new line data in csv
+    import csv
+    while True:
+        x = input("Name: ")
+        #to input name of place
+        if x.isalpha() or '':
+            break
+        print("Input can not be blankl")
+    while True:
+        y = input("Country: ")
+        #to input name of country
+        if y.isalpha() or '':
+            break
         print("Input can not be blank")
-        name = input("Name: ")
-    country = input("Country: ")
-    while country == "":
-        print("Input can not be blank")
-        country = input("Country: ")
-    test = True
-    while test == True:
+
+    class NotPositiveError(UserWarning):
+        pass
+
+    while True:
+        z = input("Priority: ")
+        #to input priority
         try:
-            priority = int(input("Priority: "))
-            test = False
+            number = int(z)
+            if number <= 0:
+                raise NotPositiveError
+            break
         except ValueError:
             print("Invalid input; enter a valid number")
-    while priority < 0:
-        print("Number must be > 0")
-        test = True
-        while test == True:
-            try:
-                priority = int(input("Priority: "))
-                test = False
-            except ValueError:
-                print("Invalid input; enter a valid number")
+        except NotPositiveError:
+            print("Number must be > 0")
 
-    if REMAINDER[-1] == 0:
-        REMAINDER.remove(REMAINDER[-1])
-    final_result = ("{},{},{},{}".format(name, country, priority, learn_status))
-    FILE.append(final_result)
-    print("{} by {} from (priority {}) added to Travel Tracker".format(name, country, priority))
+    vn = "n"
+    #vn = mark non-visited , n = mark visisted
+    print(x, "in", y, ("Priority", z), "Has been added to travel tracker")
+    newrow = [x, y, z, vn]
+    #to make input to a list
 
-    main_menu()
+    with open('places.csv', 'a', newline='') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerow(newrow)
+    csvFile.close()
 
-def learnt_function():
-    learn_status = "l\n"
-    if min(REMAINDER) == 0:
-        print("No more places to learn!")
-        main_menu()
+def visit():
+    # visit FUNCTION -to mark unvisited place to visited
+    import csv
+    with open('places.csv', 'r') as csvFile:
+        reader = csv.reader(csvFile)
+        datasort = sorted(reader, key=lambda row: (row[3], (int(row[2]))))
 
-    test = True
-    while test == True:
+    while True: #ERROR CHECKING
         try:
-            number = int(input("Enter the number of a place to mark as visited: "))
-            test = False
+            x = int(input("Enter the number of a place to mark as visited"))
+            if x > sum(1 for row in datasort):
+                print("Invalid place number!")
+                continue
+            elif x <= 0:
+                print("Number must be > 0")
+                continue
         except ValueError:
-            print("Invalid input, please enter a number")
-    if max(TOTAL_PLACES) == 0:
-        print("4 places. You still want to visit 3 places.")
+            print("Invalid! Enter a valid number")
+            continue
+        else:
+            break
 
-        main_menu()
+    with open('places.csv', 'w', newline='') as csvFile1:
+        writer = csv.writer(csvFile1)
+        num = 0
+        for row in datasort:
+            num = num+1
+            if num == x:
+                if row[3] is "v":
+                    print("Place is already visited")
+                else:
+                    row[3] = "v"
+                    print(row[0], "in",row[1], "is visited")
 
-    while number > max(TOTAL_PLACE) or number <= 0:
-        print("No unvisited places")
-        number = int(input("Enter the number of a place to mark as visited: "))
+            writer.writerow(row)
 
-    rows = FILE[number - 1]
-    new_list_rows = rows.split(",")
-    place = new_list_rows[0]
-    country = new_list_rows[1]
-    priority = new_list_rows[2]
-    result = ("{},{},{},{}".format(place, country, priority, learn_status))
+    csvFile.close()
+    csvFile1.close()
 
-    FILE.append(result)
-    FILE.remove(FILE[number - 1])
+def readfile():
+    # COUNT LINES CSV FUNCTION - to sum lines in csv
+    import csv
+    with open('places.csv', 'r') as csvfile2:
+        reader = csv.reader(csvfile2)
+        row_count = sum(1 for row in reader)
+    return row_count
+    csvfile2.close()
 
-    print("4 places. No places left to visit. Why not add a new place? ")
-    main_menu()
+def readfile1():
+    # mark no unvisited place left function
+    import csv
+    with open('places.csv', 'r') as csvfile2:
+        reader = csv.reader(csvfile2)
+        visit = 0
+        for row in reader:
+            if row[3] == 'n':
+                visit = visit + 1
+            else:
+                visit = visit
+    csvfile2.close()
+    return visit
 
+def sortcsvfile():#        Function to sort csv file and write it to final places.csv          #
+    import csv
+    with open("places.csv", "r") as csvfile3:
+        data = csv.reader(csvfile3)
+        sortedlist = sorted(data, key=lambda row:(row[3], int(row[2])))
+    with open("places.csv", "w", newline='') as f:
+        fileWriter = csv.writer(f)
+        for row in sortedlist:
+            fileWriter.writerow(row)
+    csvfile3.close()
+    f.close()
 
-if __name__ == "__main__":
-    main()
-
-
-
-
+main()
 
 
 
